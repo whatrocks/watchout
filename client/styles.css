@@ -8,3 +8,11 @@ Feel free to use it if you like. */
   stroke: teal;
   stroke-width: 5;
 }
+.hero {
+  fill: pink;
+  stroke: tomato;
+  stroke-width: 2;
+}
+.board {
+  background-color: #1a1a1a;
+}
