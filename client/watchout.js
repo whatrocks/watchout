@@ -1,45 +1,43 @@
-// start slingin' some d3 here.
-
 // SETUP
-var h = 500;
-var w = 500;
-var enemies = [];
-var heroes = [];
+var h = 500;            // svg element height
+var w = 500;            // svg width
+var circleRadius = 15;  // radius of circles
+var heroes = [];        // dataset of the hero(es)
+var enemies = [];       // dataset of the enemies
 
 // HELPER FUNCTION
-var randomLocation = function(axis) { // axis is h or w
+var randomLocation = function(axis) {
   return Math.floor(Math.random() * axis - 5);
 };
 
-// INITIALIZE THE ENEMIES
+// CREATE THE ENEMIES
 for (var i = 0; i < 10; i++) {
   var enemy = {
     id: i,
+    type: "enemy",
     x: randomLocation(w),
     y: randomLocation(h)
   };
   enemies.push(enemy);
 }
 
-// INITIALIZE THE HERO
-var hero = { id: 0, 
-           x: w/2, 
-           y: h/2
-           };
-
+// CREATE A HERO
+var hero = { id: 0, type: "hero", x: w/2, y: h/2};
 heroes.push(hero);
 
 // RANDOM ENEMY LOCATION
 setInterval(function(){
 
+  // New random location
   for (var enemy = 0; enemy < enemies.length; enemy++ ){
     enemies[enemy].x = randomLocation(w);
     enemies[enemy].y = randomLocation(h);
   }
-  updateEnemies();
-},1000);
 
-// TODO: Prevent enemies from moving offscreen
+  updateEnemies();
+  collisionDetection();
+},2000);
+
 
 // CREATE GAME BOARD
 var svg = d3.select("body")
@@ -48,9 +46,9 @@ var svg = d3.select("body")
   .attr("width", w)
   .attr("class", "board");
 
-// CREATE ENEMIES
+// SHOW THE ENEMIES
 var createEnemies = function() {
-
+  
   svg.selectAll("circle")
     .data(enemies)
     .enter()
@@ -61,14 +59,14 @@ var createEnemies = function() {
     .attr("cy", function(d){
       return d.y;
     })
-    .attr("r", 10)
+    .attr("r", circleRadius)
     .attr("class", "enemy");
 };
 
-// CREATE HERO
+// SHOW THE HERO
 var createHero = function() {
-
-  svg.selectAll("circle")
+  
+  svg.selectAll("circle:not(.enemy)")
      .data(heroes)
      .enter()
      .append("circle")
@@ -78,9 +76,9 @@ var createHero = function() {
      .attr("cy", function(d){
       return d.y;
      })
-     .attr("r", 5)
+     .attr("r", circleRadius)
      .attr("class", "hero")
-     .call(drag);
+     .call(dragger);
 };
 
 var updateEnemies = function() {
@@ -90,25 +88,56 @@ var updateEnemies = function() {
       return d.id;
     })
     .transition()
-    .duration(750)
+    .duration(1500)
     .attr("cx", function(d){
       return d.x;
     })
     .attr("cy", function(d){
       return d.y;
     })
-    .attr("r", 10);
+    .attr("r", circleRadius);
 };
 
 // Drag listener
-var drag = d3.behavior.drag();
+var dragger = d3.behavior.drag();
 
-drag.on('drag', function(){
+dragger.on('drag', function(){
   d3.select(this).attr('cx', d3.event.x);
   d3.select(this).attr('cy', d3.event.y);
+  collisionDetection();
 });
 
 
+// COLLISON DECTECTION
+var tracker = function() {
+  var lastX = 0;
+  var lastY = 0;
+
+  return function(){
+    var curX = Math.floor(circle.attr('cx'));
+    var curY = Math.floor(circle.attr('cy'));
+    if (curX !== lastX && curY !== lastY){
+      collisionDetection();
+    }
+  };
+};
+
+var collisionDetection = function() {
+  var hero = svg.select('.hero'); // circle 1
+
+  for ( var i = 0; i < enemies.length; i++ ){
+    var dx = Math.abs(hero.attr('cx') - enemies[i].x);
+    var dy = Math.abs(hero.attr('cy') - enemies[i].y);
+    var distance = Math.sqrt( (dx * dx) + (dy * dy) );
+    if ( distance < ( circleRadius * 2 )) {
+      console.log("collide!!");
+    }
+  }
+
+
+};
+
 // CALL THESE TO START GAME
-createHero();
 createEnemies();
+createHero();
+
