@@ -7,9 +7,9 @@ var heroes = [];        // dataset of the hero(es)
 var enemies = [];       // dataset of the enemies
 
 var scoreboard = [
-  {name: 'highscore', value: 50},
-  {name: 'current', value: 100},
-  {name: 'collisions', value: 10}
+  {name: 'highscore', value: 0},
+  {name: 'current', value: 0},
+  {name: 'collisions', value: 0}
 ];
 
 
@@ -71,6 +71,18 @@ var svg = d3.select("body")
   .attr("height", h)
   .attr("width", w)
   .attr("class", "board");
+
+// SET UP PATTERNS FOR CIRCLES
+svg.append("defs").append("pattern")
+  .attr("id","jawa")
+  .attr("width",30)
+  .attr("height",30)
+  .append('svg:image')
+  .attr("xlink:href", "jawa.gif")
+  .attr("width", 30)
+  .attr("height", 30)
+  .attr("x", 0)
+  .attr("y", 0);
 
 // SHOW THE ENEMIES
 var createEnemies = function() {
