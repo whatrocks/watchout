@@ -1,10 +1,17 @@
 // SETUP
-var timeout = 4000;
+var timeout = 2000;
 var h = 500;            // svg element height
 var w = 500;            // svg width
 var circleRadius = 15;  // radius of circles
 var heroes = [];        // dataset of the hero(es)
 var enemies = [];       // dataset of the enemies
+
+var scoreboard = [
+  {name: 'highscore', value: 50},
+  {name: 'current', value: 100},
+  {name: 'collisions', value: 10}
+];
+
 
 // HELPER FUNCTION
 var randomLocation = function(axis) {
@@ -16,10 +23,8 @@ for (var i = 0; i < 10; i++) {
   var enemy = {
     id: i,
     type: "enemy",
-    x: 100,
-    y: 100
-    // x: randomLocation(w),
-    // y: randomLocation(h)
+    x: randomLocation(w),
+    y: randomLocation(h)
   };
   enemies.push(enemy);
 }
@@ -28,9 +33,26 @@ for (var i = 0; i < 10; i++) {
 var hero = { id: 0, type: "hero", x: w/2, y: h/2};
 heroes.push(hero);
 
+// MAIN GAME LOOP
 setInterval(function(){
+  updateScore();
   collisionDetectionAtRest();
 }, 100);
+
+
+// UPDATE SCORES
+var updateScore = function() {
+  // increment counter
+  scoreboard[1].value++;
+  if (scoreboard[1].value > scoreboard[0].value) {
+    scoreboard[0].value = scoreboard[1].value;
+  }
+  // select element
+  d3.select('.scoreboard')
+  .selectAll('span')
+  .data(scoreboard)
+  .text(function(d) {return d.value;});
+};
 
 // RANDOM ENEMY LOCATION
 setInterval(function(){
@@ -38,8 +60,6 @@ setInterval(function(){
   for (var enemy = 0; enemy < enemies.length; enemy++ ){
      enemies[enemy].x = randomLocation(w);
      enemies[enemy].y = randomLocation(h);
-    // enemies[enemy].x = 250;
-    // enemies[enemy].y = 250;
   }
   updateEnemies();
 }, timeout);
@@ -133,7 +153,9 @@ var collisionDetectionWhileMoving = function(enemyX, enemyY) {
   var dy = Math.abs(hero.attr('cy') - enemyY);
   var distance = Math.sqrt( (dx * dx) + (dy * dy) );
   if ( distance < ( circleRadius * 2 )) {
-      console.log("collide while moving!!");
+      // console.log("collide while moving!!");
+    scoreboard[2].value += 1;
+    scoreboard[1].value = 0;
   }
 };
 
@@ -145,7 +167,9 @@ var collisionDetectionAtRest = function() {
     var dy = Math.abs(hero.attr('cy') - enemies[i].y);
     var distance = Math.sqrt( (dx * dx) + (dy * dy) );
     if ( distance < ( circleRadius * 2 )) {
-      console.log("collide AT REST!!");
+      // console.log("collide AT REST!!");
+      scoreboard[2].value += 1;
+      scoreboard[1].value = 0;
     }
   }
 };
