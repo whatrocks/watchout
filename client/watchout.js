@@ -1,4 +1,5 @@
 // SETUP
+var timeout = 4000;
 var h = 500;            // svg element height
 var w = 500;            // svg width
 var circleRadius = 15;  // radius of circles
@@ -15,8 +16,8 @@ for (var i = 0; i < 10; i++) {
   var enemy = {
     id: i,
     type: "enemy",
-    x: 5,
-    y: 5
+    x: 100,
+    y: 100
     // x: randomLocation(w),
     // y: randomLocation(h)
   };
@@ -27,9 +28,12 @@ for (var i = 0; i < 10; i++) {
 var hero = { id: 0, type: "hero", x: w/2, y: h/2};
 heroes.push(hero);
 
+setInterval(function(){
+  collisionDetectionAtRest();
+}, 100);
+
 // RANDOM ENEMY LOCATION
 setInterval(function(){
-
   // New random location
   for (var enemy = 0; enemy < enemies.length; enemy++ ){
      enemies[enemy].x = randomLocation(w);
@@ -38,8 +42,7 @@ setInterval(function(){
     // enemies[enemy].y = 250;
   }
   updateEnemies();
-  // collisionDetection();
-},2000);
+}, timeout);
 
 
 // CREATE GAME BOARD
@@ -108,7 +111,7 @@ var dragger = d3.behavior.drag();
 dragger.on('drag', function(){
   d3.select(this).attr('cx', d3.event.x);
   d3.select(this).attr('cy', d3.event.y);
-  collisionDetection();
+
 });
 
 
@@ -119,34 +122,33 @@ var tracker = function(d,i) {
   return function(){
     var enemyX = this.getAttribute('cx');
     var enemyY = this.getAttribute('cy');
-    collisionDetection(enemyX, enemyY);
+    collisionDetectionWhileMoving(enemyX, enemyY);
   };
 };
 
-// NEW COLLISION DETECTION
-var collisionDetection = function(enemyX, enemyY) {
+// COLLISION DETECTION
+var collisionDetectionWhileMoving = function(enemyX, enemyY) {
   var hero = svg.select('.hero'); // circle 1
   var dx = Math.abs(hero.attr('cx') - enemyX);
   var dy = Math.abs(hero.attr('cy') - enemyY);
   var distance = Math.sqrt( (dx * dx) + (dy * dy) );
   if ( distance < ( circleRadius * 2 )) {
-      console.log("collide!!");
+      console.log("collide while moving!!");
   }
 };
 
-// // OLD COLLISION DETECTION
-// var collisionDetection = function(enemyX, enemyY) {
-//   var hero = svg.select('.hero'); // circle 1
+var collisionDetectionAtRest = function() {
+  var hero = svg.select('.hero'); // circle 1
 
-//   for ( var i = 0; i < enemies.length; i++ ){
-//     var dx = Math.abs(hero.attr('cx') - enemies[i].x);
-//     var dy = Math.abs(hero.attr('cy') - enemies[i].y);
-//     var distance = Math.sqrt( (dx * dx) + (dy * dy) );
-//     if ( distance < ( circleRadius * 2 )) {
-//       console.log("collide!!");
-//     }
-//   }
-// };
+  for ( var i = 0; i < enemies.length; i++ ){
+    var dx = Math.abs(hero.attr('cx') - enemies[i].x);
+    var dy = Math.abs(hero.attr('cy') - enemies[i].y);
+    var distance = Math.sqrt( (dx * dx) + (dy * dy) );
+    if ( distance < ( circleRadius * 2 )) {
+      console.log("collide AT REST!!");
+    }
+  }
+};
 
 
 
