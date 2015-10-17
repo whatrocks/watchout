@@ -62,6 +62,8 @@ setInterval(function(){
      enemies[enemy].y = randomLocation(h);
   }
   updateEnemies();
+  previousMoveCollisionState = false;
+  previousRestCollisionState = false;
 }, timeout);
 
 
@@ -158,20 +160,31 @@ var tracker = function(d,i) {
   };
 };
 
+
+var previousMoveCollisionState = false;
+var previousRestCollisionState = false;
+
 // COLLISION DETECTION
 var collisionDetectionWhileMoving = function(enemyX, enemyY) {
+  var moveCollision = false;
+
   var hero = svg.select('.hero'); // circle 1
   var dx = Math.abs(hero.attr('cx') - enemyX);
   var dy = Math.abs(hero.attr('cy') - enemyY);
   var distance = Math.sqrt( (dx * dx) + (dy * dy) );
   if ( distance < ( circleRadius * 2 )) {
-      // console.log("collide while moving!!");
-    scoreboard[2].value += 1;
+    moveCollision = true;
     scoreboard[1].value = 0;
+    if ( previousMoveCollisionState !== moveCollision ) {
+      scoreboard[2].value += 1;
+    }
+  previousMoveCollisionState = moveCollision;
   }
 };
 
 var collisionDetectionAtRest = function() {
+  var restCollision = false;
+
   var hero = svg.select('.hero'); // circle 1
 
   for ( var i = 0; i < enemies.length; i++ ){
@@ -179,9 +192,12 @@ var collisionDetectionAtRest = function() {
     var dy = Math.abs(hero.attr('cy') - enemies[i].y);
     var distance = Math.sqrt( (dx * dx) + (dy * dy) );
     if ( distance < ( circleRadius * 2 )) {
-      // console.log("collide AT REST!!");
-      scoreboard[2].value += 1;
+      restCollision = true;
       scoreboard[1].value = 0;
+      if ( previousRestCollisionState !== restCollision ){
+        scoreboard[2].value += 1;
+      }
+    previousRestCollisionState = restCollision;
     }
   }
 };
