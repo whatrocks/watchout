@@ -15,8 +15,10 @@ for (var i = 0; i < 10; i++) {
   var enemy = {
     id: i,
     type: "enemy",
-    x: randomLocation(w),
-    y: randomLocation(h)
+    x: 5,
+    y: 5
+    // x: randomLocation(w),
+    // y: randomLocation(h)
   };
   enemies.push(enemy);
 }
@@ -30,12 +32,13 @@ setInterval(function(){
 
   // New random location
   for (var enemy = 0; enemy < enemies.length; enemy++ ){
-    enemies[enemy].x = randomLocation(w);
-    enemies[enemy].y = randomLocation(h);
+     enemies[enemy].x = randomLocation(w);
+     enemies[enemy].y = randomLocation(h);
+    // enemies[enemy].x = 250;
+    // enemies[enemy].y = 250;
   }
-
   updateEnemies();
-  collisionDetection();
+  // collisionDetection();
 },2000);
 
 
@@ -89,6 +92,7 @@ var updateEnemies = function() {
     })
     .transition()
     .duration(1500)
+    .tween('collision-detector', tracker)
     .attr("cx", function(d){
       return d.x;
     })
@@ -108,34 +112,43 @@ dragger.on('drag', function(){
 });
 
 
-// COLLISON DECTECTION
-var tracker = function() {
-  var lastX = 0;
-  var lastY = 0;
-
+// TWEEN
+var tracker = function(d,i) {
+  // var enemy = this.getAttribute('cx'); 
+  // console.log(enemy);
   return function(){
-    var curX = Math.floor(circle.attr('cx'));
-    var curY = Math.floor(circle.attr('cy'));
-    if (curX !== lastX && curY !== lastY){
-      collisionDetection();
-    }
+    var enemyX = this.getAttribute('cx');
+    var enemyY = this.getAttribute('cy');
+    collisionDetection(enemyX, enemyY);
   };
 };
 
-var collisionDetection = function() {
+// NEW COLLISION DETECTION
+var collisionDetection = function(enemyX, enemyY) {
   var hero = svg.select('.hero'); // circle 1
-
-  for ( var i = 0; i < enemies.length; i++ ){
-    var dx = Math.abs(hero.attr('cx') - enemies[i].x);
-    var dy = Math.abs(hero.attr('cy') - enemies[i].y);
-    var distance = Math.sqrt( (dx * dx) + (dy * dy) );
-    if ( distance < ( circleRadius * 2 )) {
+  var dx = Math.abs(hero.attr('cx') - enemyX);
+  var dy = Math.abs(hero.attr('cy') - enemyY);
+  var distance = Math.sqrt( (dx * dx) + (dy * dy) );
+  if ( distance < ( circleRadius * 2 )) {
       console.log("collide!!");
-    }
   }
-
-
 };
+
+// // OLD COLLISION DETECTION
+// var collisionDetection = function(enemyX, enemyY) {
+//   var hero = svg.select('.hero'); // circle 1
+
+//   for ( var i = 0; i < enemies.length; i++ ){
+//     var dx = Math.abs(hero.attr('cx') - enemies[i].x);
+//     var dy = Math.abs(hero.attr('cy') - enemies[i].y);
+//     var distance = Math.sqrt( (dx * dx) + (dy * dy) );
+//     if ( distance < ( circleRadius * 2 )) {
+//       console.log("collide!!");
+//     }
+//   }
+// };
+
+
 
 // CALL THESE TO START GAME
 createEnemies();
